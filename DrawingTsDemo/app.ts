@@ -1,4 +1,6 @@
-﻿module drawingDemo {
+﻿/// <reference path="scripts/drawingts/drawingts.d.ts" />
+
+module drawingDemo {
     'use strict'
     //
     //Using DrawingTs classes
