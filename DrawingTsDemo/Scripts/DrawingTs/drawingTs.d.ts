@@ -25,12 +25,16 @@
         public right : number;
         public top : number;
         public bottom : number;
+        public Position : Point;
+        public Size : Size;
+    }
+    class Size {
+        public width: number;
+        public height: number;
+        constructor(width: number, height: number);
     }
 }
 declare module DrawingTs {
-    /**
-    * Canvas
-    */
     class Canvas {
         private htmlCanvas;
         private _bufferWidth;
@@ -78,62 +82,41 @@ declare module DrawingTs {
         public fillRect(brush: IBrush, rect: Rectangle): void;
         public drawStringOutline(text: string, font: Font, pen: Pen, x: number, y: number, align?: TextAlign, baseline?: TextBaseline): number;
         public drawString(text: string, font: Font, brush: IBrush, x: number, y: number, align?: TextAlign, baseline?: TextBaseline): number;
+        public drawImage(image: ImageObject, destPos: Point, destSize?: Size, srcPos?: Point, srcSize?: Size): void;
         private figureElipse(tool, rect, action);
     }
 }
 declare module DrawingTs {
-    class EnumBase {
-        private index;
-        private name;
-        constructor(index: number, name: string);
-        public ordinal(): number;
-        public asString(): string;
-    }
-    class FontStyle extends EnumBase {
-        static normal: FontStyle;
-        static bold: FontStyle;
-        static italic: FontStyle;
-        static italicBold: FontStyle;
-    }
-    class TextBaseline extends EnumBase {
-        static top: TextBaseline;
-        static hanging: TextBaseline;
-        static middle: TextBaseline;
-        static alphabetic: TextBaseline;
-        static ideographic: TextBaseline;
-        static bottom: TextBaseline;
-    }
-    class TextAlign extends EnumBase {
-        static start: TextAlign;
-        static end: TextAlign;
-        static left: TextAlign;
-        static right: TextAlign;
-        static center: TextAlign;
-    }
-    class LineCap extends EnumBase {
-        static butt: LineCap;
-        static round: LineCap;
-        static square: LineCap;
-    }
-    class LineJoin extends EnumBase {
-        static bevel: LineJoin;
-        static round: LineJoin;
-        static miter: LineJoin;
-    }
     class Color {
         public cssColor: string;
+        static Black: Color;
+        static Silver: Color;
+        static Gray: Color;
+        static White: Color;
+        static Maroon: Color;
+        static Red: Color;
+        static Purple: Color;
+        static Fuchsia: Color;
+        static Green: Color;
+        static Lime: Color;
+        static Olive: Color;
+        static Yellow: Color;
+        static Navy: Color;
+        static Blue: Color;
+        static Teal: Color;
+        static Aqua: Color;
         constructor(cssColor: string);
         static fromRgb(r: number, g: number, b: number): Color;
         static fromRgba(r: number, g: number, b: number, a: number): Color;
+    }
+    interface IGraphicsObject {
+        applyTo(g: Graphics): any;
     }
     class Font implements IGraphicsObject {
         public cssFont: string;
         constructor(cssFont: string);
         static Create(familyName: string, pxSize: number, style?: FontStyle): Font;
         public applyTo(g: Graphics): void;
-    }
-    interface IGraphicsObject {
-        applyTo(g: Graphics): any;
     }
     class Pen implements IGraphicsObject {
         public color: Color;
@@ -173,6 +156,15 @@ declare module DrawingTs {
         public colors: GradientColor[];
         constructor(center0: Point, r0: number, center1: Point, r1: number, colors: GradientColor[]);
         public applyTo(g: Graphics): void;
+    }
+    class ImageObject {
+        private imageElement;
+        public drawImageWhenIncomplete: (g: Graphics, rect: Rectangle) => void;
+        public bounds : Rectangle;
+        constructor(width?: number, height?: number);
+        public load(source: string, onload: (ev: Event) => any): void;
+        public draw(g: Graphics, destPos: Point, destSize?: Size, srcPos?: Point, srcSize?: Size): void;
+        private drawImage(g, offsetx, offsety, width, height, canvasOffsetx, canvasOffsety, canvasWidth, canvasHeight);
     }
 }
 declare module DrawingTs {
@@ -272,5 +264,45 @@ declare module DrawingTs {
         public drop(position: Point): IShape;
         public draw(g: Graphics): void;
         public erase(center: Point, radius: number): IShape[];
+    }
+}
+declare module DrawingTs {
+    class EnumBase<TValue> {
+        private _index;
+        private _value;
+        constructor(_index: number, _value: TValue);
+        public index : number;
+        public value : TValue;
+    }
+    class FontStyle extends EnumBase<string> {
+        static Normal: FontStyle;
+        static Bold: FontStyle;
+        static Italic: FontStyle;
+        static ItalicBold: FontStyle;
+    }
+    class TextBaseline extends EnumBase<string> {
+        static Top: TextBaseline;
+        static Hanging: TextBaseline;
+        static Middle: TextBaseline;
+        static Alphabetic: TextBaseline;
+        static Ideographic: TextBaseline;
+        static Bottom: TextBaseline;
+    }
+    class TextAlign extends EnumBase<string> {
+        static Start: TextAlign;
+        static End: TextAlign;
+        static Left: TextAlign;
+        static Right: TextAlign;
+        static Center: TextAlign;
+    }
+    class LineCap extends EnumBase<string> {
+        static Butt: LineCap;
+        static Round: LineCap;
+        static Square: LineCap;
+    }
+    class LineJoin extends EnumBase<string> {
+        static Bevel: LineJoin;
+        static Round: LineJoin;
+        static Miter: LineJoin;
     }
 }

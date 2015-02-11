@@ -1,8 +1,8 @@
-﻿module DrawingTs {
+﻿/* 
+ * drawingTs.canvas.ts 
+ */
+module DrawingTs {
     'use strict'
-    /**
-     * Canvas 
-     */
     export class Canvas {
 
         private htmlCanvas: HTMLCanvasElement;

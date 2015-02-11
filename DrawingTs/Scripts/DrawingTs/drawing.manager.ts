@@ -1,4 +1,7 @@
-﻿module DrawingTs {
+﻿/* 
+ * drawingTs.manager.ts 
+ */
+module DrawingTs {
     'use strict'
     export class DrawingManager {
         public shapes: IShape[] = [];

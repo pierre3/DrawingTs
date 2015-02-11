@@ -16,6 +16,8 @@ module drawingDemo {
     import RadialGradientBrush = DrawingTs.RadialGradientBrush;
     import Font = DrawingTs.Font;
     import Path = DrawingTs.Path;
+    import ImageObject = DrawingTs.ImageObject;
+    import Size = DrawingTs.Size;
     //
     // window load event handler
     //
@@ -84,7 +86,7 @@ module drawingDemo {
             var lineColor = Color.fromRgba(0, 0, 255, 0.5);
             var lineWidth = 5;
             var lineDash = [10, 10];
-            var lineCap = DrawingTs.LineCap.round;
+            var lineCap = DrawingTs.LineCap.Round;
             g.drawLine(
                 new Pen(lineColor, lineWidth, lineDash, lineCap),
                 new Point(10, 60),
@@ -115,8 +117,8 @@ module drawingDemo {
 
             var penWidth = 5;
             var lineDash = [5, 10];
-            var lineCap = DrawingTs.LineCap.butt;
-            var lineJoin = DrawingTs.LineJoin.round;
+            var lineCap = DrawingTs.LineCap.Butt;
+            var lineJoin = DrawingTs.LineJoin.Round;
             g.drawRect(
                 new Pen(Color.fromRgb(33, 98, 127), penWidth, lineDash, lineCap, lineJoin),
                 new Rectangle(100, 100, 100, 60));
@@ -240,26 +242,26 @@ module drawingDemo {
         canvas9.onPaint = (g: DrawingTs.Graphics) => {
             g.drawLine(new Pen(new Color("gray")), new Point(200, 0), new Point(200, 180));
 
-            var font = Font.Create("Mayrio, sans-serif", 20, DrawingTs.FontStyle.italic);
+            var font = Font.Create("Mayrio, sans-serif", 20, DrawingTs.FontStyle.Italic);
             var brush = new SolidBrush(new Color("blue"));
             g.drawString("TextAlign-left",
                 font,
                 brush,
                 200, 4,
-                DrawingTs.TextAlign.left,
-                DrawingTs.TextBaseline.top);
+                DrawingTs.TextAlign.Left,
+                DrawingTs.TextBaseline.Top);
             g.drawString("TextAlign-center",
                 font,
                 brush,
                 200, 24,
-                DrawingTs.TextAlign.center,
-                DrawingTs.TextBaseline.top);
+                DrawingTs.TextAlign.Center,
+                DrawingTs.TextBaseline.Top);
             g.drawString("TextAlign-right",
                 font,
                 brush,
                 200, 44,
-                DrawingTs.TextAlign.right,
-                DrawingTs.TextBaseline.top);
+                DrawingTs.TextAlign.Right,
+                DrawingTs.TextBaseline.Top);
 
             g.drawLine(new Pen(new Color("gray")), new Point(0, 110), new Point(400, 110));
 
@@ -272,32 +274,32 @@ module drawingDemo {
                 font,
                 lgBrush,
                 4, 110,
-                DrawingTs.TextAlign.left,
-                DrawingTs.TextBaseline.top);
+                DrawingTs.TextAlign.Left,
+                DrawingTs.TextBaseline.Top);
             width += g.drawString("Hanging ",
                 font,
                 lgBrush,
                 width + 4, 110,
-                DrawingTs.TextAlign.left,
-                DrawingTs.TextBaseline.hanging);
+                DrawingTs.TextAlign.Left,
+                DrawingTs.TextBaseline.Hanging);
             width += g.drawString("Middle ",
                 font,
                 lgBrush,
                 width + 4, 110,
-                DrawingTs.TextAlign.left,
-                DrawingTs.TextBaseline.middle);
+                DrawingTs.TextAlign.Left,
+                DrawingTs.TextBaseline.Middle);
             width += g.drawString("Alphabetic ",
                 font,
                 lgBrush,
                 width + 4, 110,
-                DrawingTs.TextAlign.left,
-                DrawingTs.TextBaseline.alphabetic);
+                DrawingTs.TextAlign.Left,
+                DrawingTs.TextBaseline.Alphabetic);
             width += g.drawString("Bottom ",
                 font,
                 lgBrush,
                 width + 4, 110,
-                DrawingTs.TextAlign.left,
-                DrawingTs.TextBaseline.bottom);
+                DrawingTs.TextAlign.Left,
+                DrawingTs.TextBaseline.Bottom);
 
         };
         canvas9.paint();
@@ -308,29 +310,29 @@ module drawingDemo {
         canvas10.onPaint = (g: DrawingTs.Graphics) => {
             g.drawLine(new Pen(new Color("gray")), new Point(200, 0), new Point(200, 180));
 
-            var font = Font.Create("monospace", 40, DrawingTs.FontStyle.bold);
+            var font = Font.Create("monospace", 40, DrawingTs.FontStyle.Bold);
             var pen = new Pen(Color.fromRgb(40, 40, 40));
 
             g.drawStringOutline("LEFT",
                 font,
                 pen,
                 200, 0,
-                DrawingTs.TextAlign.left,
-                DrawingTs.TextBaseline.top);
+                DrawingTs.TextAlign.Left,
+                DrawingTs.TextBaseline.Top);
 
             g.drawStringOutline("CENTER",
                 font,
                 pen,
                 200, 40,
-                DrawingTs.TextAlign.center,
-                DrawingTs.TextBaseline.top);
+                DrawingTs.TextAlign.Center,
+                DrawingTs.TextBaseline.Top);
 
             g.drawStringOutline("RIGHT",
                 font,
                 pen,
                 200, 80,
-                DrawingTs.TextAlign.right,
-                DrawingTs.TextBaseline.top);
+                DrawingTs.TextAlign.Right,
+                DrawingTs.TextBaseline.Top);
 
             g.drawLine(new Pen(new Color("gray")), new Point(0, 140), new Point(400, 140));
 
@@ -339,33 +341,43 @@ module drawingDemo {
                 font,
                 pen2,
                 4, 140,
-                DrawingTs.TextAlign.left,
-                DrawingTs.TextBaseline.top);
+                DrawingTs.TextAlign.Left,
+                DrawingTs.TextBaseline.Top);
             width += g.drawStringOutline("H ",
                 font,
                 pen2,
                 width + 4, 140,
-                DrawingTs.TextAlign.left,
-                DrawingTs.TextBaseline.hanging);
+                DrawingTs.TextAlign.Left,
+                DrawingTs.TextBaseline.Hanging);
             width += g.drawStringOutline("M ",
                 font,
                 pen2,
                 width + 4, 140,
-                DrawingTs.TextAlign.left,
-                DrawingTs.TextBaseline.middle);
+                DrawingTs.TextAlign.Left,
+                DrawingTs.TextBaseline.Middle);
             width += g.drawStringOutline("A ",
                 font,
                 pen2,
                 width + 4, 140,
-                DrawingTs.TextAlign.left,
-                DrawingTs.TextBaseline.alphabetic);
+                DrawingTs.TextAlign.Left,
+                DrawingTs.TextBaseline.Alphabetic);
             width += g.drawStringOutline("B ",
                 font,
                 pen2,
                 width + 4, 140,
-                DrawingTs.TextAlign.left,
-                DrawingTs.TextBaseline.bottom);
+                DrawingTs.TextAlign.Left,
+                DrawingTs.TextBaseline.Bottom);
         };
         canvas10.paint();
+
+        var canvas11 = new Canvas("canvas11");
+        var image = new DrawingTs.ImageObject(150, 150);
+        image.load("Content/logo-piquest.png", (ev) => { canvas11.paint(); });
+        canvas11.onPaint = (g: DrawingTs.Graphics) => {
+            g.drawImage(image, new Point(10, 10));
+            g.drawImage(image, new Point(170, 10), new Size(60, 120));
+            g.drawImage(image, new Point(240, 10), new Size(60, 60), new Point(50, 50), new Size(100, 100));
+        };
+        canvas11.paint();
     };
 }

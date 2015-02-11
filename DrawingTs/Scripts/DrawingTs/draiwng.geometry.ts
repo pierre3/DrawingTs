@@ -1,4 +1,7 @@
-﻿module DrawingTs {
+﻿/* 
+ * drawingTs.geometry.ts 
+ */
+module DrawingTs {
     'use strict'
    
     export class Point {
@@ -52,7 +55,11 @@
         public get right(): number { return this.x + this.w; }
         public get top(): number { return this.y; }
         public get bottom(): number { return this.y + this.h }
-
+        public get Position(): Point { return new Point(this.x, this.y); }
+        public get Size(): Size { return new Size(this.w,this.h);}
     }
 
+    export class Size {
+        constructor(public width: number, public height: number) { }
+    }
 }

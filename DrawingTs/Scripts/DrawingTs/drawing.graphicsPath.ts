@@ -1,4 +1,7 @@
-﻿module DrawingTs {
+﻿/* 
+ * drawingTs.graphicsPath.ts 
+ */
+module DrawingTs {
     'use strict'
    
     export interface IPathData {

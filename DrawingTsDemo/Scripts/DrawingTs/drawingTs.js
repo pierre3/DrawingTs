@@ -4,6 +4,9 @@
     __.prototype = b.prototype;
     d.prototype = new __();
 };
+/*
+* drawingTs.geometry.ts
+*/
 var DrawingTs;
 (function (DrawingTs) {
     'use strict';
@@ -91,17 +94,39 @@ var DrawingTs;
             enumerable: true,
             configurable: true
         });
+        Object.defineProperty(Rectangle.prototype, "Position", {
+            get: function () {
+                return new Point(this.x, this.y);
+            },
+            enumerable: true,
+            configurable: true
+        });
+        Object.defineProperty(Rectangle.prototype, "Size", {
+            get: function () {
+                return new Size(this.w, this.h);
+            },
+            enumerable: true,
+            configurable: true
+        });
         return Rectangle;
     })();
     DrawingTs.Rectangle = Rectangle;
+
+    var Size = (function () {
+        function Size(width, height) {
+            this.width = width;
+            this.height = height;
+        }
+        return Size;
+    })();
+    DrawingTs.Size = Size;
 })(DrawingTs || (DrawingTs = {}));
+/*
+* drawingTs.canvas.ts
+*/
 var DrawingTs;
 (function (DrawingTs) {
     'use strict';
-
-    /**
-    * Canvas
-    */
     var Canvas = (function () {
         function Canvas(id) {
             this._zoomX = 1.0;
@@ -272,6 +297,9 @@ var DrawingTs;
 
     ;
 })(DrawingTs || (DrawingTs = {}));
+/*
+* drawingTs.graphics.ts
+*/
 var DrawingTs;
 (function (DrawingTs) {
     'use strict';
@@ -362,12 +390,12 @@ var DrawingTs;
         };
 
         Graphics.prototype.drawStringOutline = function (text, font, pen, x, y, align, baseline) {
-            if (typeof align === "undefined") { align = DrawingTs.TextAlign.start; }
-            if (typeof baseline === "undefined") { baseline = DrawingTs.TextBaseline.alphabetic; }
+            if (typeof align === "undefined") { align = DrawingTs.TextAlign.Start; }
+            if (typeof baseline === "undefined") { baseline = DrawingTs.TextBaseline.Alphabetic; }
             this.rc.beginPath();
             pen.applyTo(this);
-            this.rc.textAlign = align.asString();
-            this.rc.textBaseline = baseline.asString();
+            this.rc.textAlign = align.value;
+            this.rc.textBaseline = baseline.value;
             this.rc.font = font.cssFont;
             this.rc.strokeText(text, x, y);
             this.rc.closePath();
@@ -375,16 +403,19 @@ var DrawingTs;
         };
 
         Graphics.prototype.drawString = function (text, font, brush, x, y, align, baseline) {
-            if (typeof align === "undefined") { align = DrawingTs.TextAlign.start; }
-            if (typeof baseline === "undefined") { baseline = DrawingTs.TextBaseline.alphabetic; }
+            if (typeof align === "undefined") { align = DrawingTs.TextAlign.Start; }
+            if (typeof baseline === "undefined") { baseline = DrawingTs.TextBaseline.Alphabetic; }
             this.rc.beginPath();
             brush.applyTo(this);
-            this.rc.textAlign = align.asString();
-            this.rc.textBaseline = baseline.asString();
+            this.rc.textAlign = align.value;
+            this.rc.textBaseline = baseline.value;
             this.rc.font = font.cssFont;
             this.rc.fillText(text, x, y);
             this.rc.closePath();
             return this.rc.measureText(text).width;
+        };
+        Graphics.prototype.drawImage = function (image, destPos, destSize, srcPos, srcSize) {
+            image.draw(this, destPos, destSize, srcPos, srcSize);
         };
 
         Graphics.prototype.figureElipse = function (tool, rect, action) {
@@ -415,89 +446,12 @@ var DrawingTs;
     })();
     DrawingTs.Graphics = Graphics;
 })(DrawingTs || (DrawingTs = {}));
+/*
+* drawingTs.graphicsObjects.ts
+*/
 var DrawingTs;
 (function (DrawingTs) {
     'use strict';
-
-    var EnumBase = (function () {
-        function EnumBase(index, name) {
-            this.index = index;
-            this.name = name;
-        }
-        EnumBase.prototype.ordinal = function () {
-            return this.index;
-        };
-        EnumBase.prototype.asString = function () {
-            return this.name;
-        };
-        return EnumBase;
-    })();
-    DrawingTs.EnumBase = EnumBase;
-    var FontStyle = (function (_super) {
-        __extends(FontStyle, _super);
-        function FontStyle() {
-            _super.apply(this, arguments);
-        }
-        FontStyle.normal = new FontStyle(0, "");
-        FontStyle.bold = new FontStyle(1, "bold");
-        FontStyle.italic = new FontStyle(2, "italic");
-        FontStyle.italicBold = new FontStyle(3, "italic bold");
-        return FontStyle;
-    })(EnumBase);
-    DrawingTs.FontStyle = FontStyle;
-
-    var TextBaseline = (function (_super) {
-        __extends(TextBaseline, _super);
-        function TextBaseline() {
-            _super.apply(this, arguments);
-        }
-        TextBaseline.top = new TextBaseline(0, "top");
-        TextBaseline.hanging = new TextBaseline(1, "hanging");
-        TextBaseline.middle = new TextBaseline(2, "middle");
-        TextBaseline.alphabetic = new TextBaseline(3, "alphabetic");
-        TextBaseline.ideographic = new TextBaseline(4, "ideographic");
-        TextBaseline.bottom = new TextBaseline(5, "bottom");
-        return TextBaseline;
-    })(EnumBase);
-    DrawingTs.TextBaseline = TextBaseline;
-
-    var TextAlign = (function (_super) {
-        __extends(TextAlign, _super);
-        function TextAlign() {
-            _super.apply(this, arguments);
-        }
-        TextAlign.start = new TextAlign(0, "start");
-        TextAlign.end = new TextAlign(1, "end");
-        TextAlign.left = new TextAlign(2, "left");
-        TextAlign.right = new TextAlign(3, "right");
-        TextAlign.center = new TextAlign(4, "center");
-        return TextAlign;
-    })(EnumBase);
-    DrawingTs.TextAlign = TextAlign;
-
-    var LineCap = (function (_super) {
-        __extends(LineCap, _super);
-        function LineCap() {
-            _super.apply(this, arguments);
-        }
-        LineCap.butt = new LineCap(0, "butt");
-        LineCap.round = new LineCap(1, "round");
-        LineCap.square = new LineCap(2, "square");
-        return LineCap;
-    })(EnumBase);
-    DrawingTs.LineCap = LineCap;
-
-    var LineJoin = (function (_super) {
-        __extends(LineJoin, _super);
-        function LineJoin() {
-            _super.apply(this, arguments);
-        }
-        LineJoin.bevel = new LineJoin(0, "bevel");
-        LineJoin.round = new LineJoin(1, "round");
-        LineJoin.miter = new LineJoin(2, "miter");
-        return LineJoin;
-    })(EnumBase);
-    DrawingTs.LineJoin = LineJoin;
 
     var Color = (function () {
         function Color(cssColor) {
@@ -509,6 +463,22 @@ var DrawingTs;
         Color.fromRgba = function (r, g, b, a) {
             return new Color('rgba(' + r + ',' + g + ',' + b + ',' + a + ')');
         };
+        Color.Black = new Color("blak");
+        Color.Silver = new Color("silver");
+        Color.Gray = new Color("gray");
+        Color.White = new Color("white");
+        Color.Maroon = new Color("maroon");
+        Color.Red = new Color("red");
+        Color.Purple = new Color("purple");
+        Color.Fuchsia = new Color("fuchsia");
+        Color.Green = new Color("green");
+        Color.Lime = new Color("lime");
+        Color.Olive = new Color("olive");
+        Color.Yellow = new Color("yellow");
+        Color.Navy = new Color("navy");
+        Color.Blue = new Color("blue");
+        Color.Teal = new Color("teal");
+        Color.Aqua = new Color("aqua");
         return Color;
     })();
     DrawingTs.Color = Color;
@@ -518,8 +488,8 @@ var DrawingTs;
             this.cssFont = cssFont;
         }
         Font.Create = function (familyName, pxSize, style) {
-            if (typeof style === "undefined") { style = FontStyle.normal; }
-            return new Font(style.asString() + " " + pxSize + "px " + "'" + familyName + "'");
+            if (typeof style === "undefined") { style = DrawingTs.FontStyle.Normal; }
+            return new Font(style.value + " " + pxSize + "px " + "'" + familyName + "'");
         };
 
         Font.prototype.applyTo = function (g) {
@@ -533,8 +503,8 @@ var DrawingTs;
         function Pen(color, width, lineDash, lineCap, lineJoin, miterLimit) {
             if (typeof width === "undefined") { width = 1; }
             if (typeof lineDash === "undefined") { lineDash = []; }
-            if (typeof lineCap === "undefined") { lineCap = LineCap.butt; }
-            if (typeof lineJoin === "undefined") { lineJoin = LineJoin.bevel; }
+            if (typeof lineCap === "undefined") { lineCap = DrawingTs.LineCap.Butt; }
+            if (typeof lineJoin === "undefined") { lineJoin = DrawingTs.LineJoin.Bevel; }
             if (typeof miterLimit === "undefined") { miterLimit = 10.0; }
             this.color = color;
             this.width = width;
@@ -549,8 +519,8 @@ var DrawingTs;
                 g.rc.setLineDash(this.lineDash);
             }
             g.rc.lineWidth = this.width;
-            g.rc.lineCap = this.lineCap.asString();
-            g.rc.lineJoin = this.lineJoin.asString();
+            g.rc.lineCap = this.lineCap.value;
+            g.rc.lineJoin = this.lineJoin.value;
             g.rc.miterLimit = this.miterLimit;
         };
         Pen.prototype.clone = function () {
@@ -615,7 +585,62 @@ var DrawingTs;
         return RadialGradientBrush;
     })();
     DrawingTs.RadialGradientBrush = RadialGradientBrush;
+
+    var ImageObject = (function () {
+        function ImageObject(width, height) {
+            this.imageElement = new Image(width, height);
+            this.drawImageWhenIncomplete = function (g, rect) {
+                g.drawRect(new Pen(Color.Blue), rect);
+                g.drawLine(new Pen(Color.Red), rect.Position, new DrawingTs.Point(rect.right, rect.bottom));
+                g.drawLine(new Pen(Color.Red), new DrawingTs.Point(rect.right, rect.top), new DrawingTs.Point(rect.left, rect.bottom));
+            };
+        }
+        Object.defineProperty(ImageObject.prototype, "bounds", {
+            get: function () {
+                return new DrawingTs.Rectangle(0, 0, this.imageElement.width, this.imageElement.height);
+            },
+            enumerable: true,
+            configurable: true
+        });
+
+        ImageObject.prototype.load = function (source, onload) {
+            this.imageElement.onload = onload;
+            this.imageElement.src = source;
+        };
+
+        ImageObject.prototype.draw = function (g, destPos, destSize, srcPos, srcSize) {
+            var offsetx = (srcPos == null) ? 0 : srcPos.x;
+            var offsety = (srcPos == null) ? 0 : srcPos.y;
+            var width = (srcSize == null) ? this.imageElement.width : srcSize.width;
+            var height = (srcSize == null) ? this.imageElement.height : srcSize.height;
+
+            var canvasOffsetx = (destPos == null) ? 0 : destPos.x;
+            var canvasOffsety = (destPos == null) ? 0 : destPos.y;
+            var canvasWidth = (destSize == null) ? width : destSize.width;
+            var canvasHeight = (destSize == null) ? height : destSize.height;
+            if (this.imageElement.complete) {
+                this.drawImage(g, offsetx, offsety, width, height, canvasOffsetx, canvasOffsety, canvasWidth, canvasHeight);
+            } else {
+                if (canvasWidth === 0) {
+                    canvasWidth = 32;
+                }
+                if (canvasHeight === 0) {
+                    canvasHeight = 32;
+                }
+                this.drawImageWhenIncomplete(g, new DrawingTs.Rectangle(canvasOffsetx, canvasOffsety, canvasWidth, canvasHeight));
+            }
+        };
+
+        ImageObject.prototype.drawImage = function (g, offsetx, offsety, width, height, canvasOffsetx, canvasOffsety, canvasWidth, canvasHeight) {
+            g.rc.drawImage(this.imageElement, offsetx, offsety, width, height, canvasOffsetx, canvasOffsety, canvasWidth, canvasHeight);
+        };
+        return ImageObject;
+    })();
+    DrawingTs.ImageObject = ImageObject;
 })(DrawingTs || (DrawingTs = {}));
+/*
+* drawingTs.graphicsPath.ts
+*/
 var DrawingTs;
 (function (DrawingTs) {
     'use strict';
@@ -751,6 +776,9 @@ var DrawingTs;
     })();
     DrawingTs.Path = Path;
 })(DrawingTs || (DrawingTs = {}));
+/*
+* drawingTs.manager.ts
+*/
 var DrawingTs;
 (function (DrawingTs) {
     'use strict';
@@ -908,5 +936,99 @@ var DrawingTs;
         return Eraser;
     })();
     DrawingTs.Eraser = Eraser;
+})(DrawingTs || (DrawingTs = {}));
+/*
+* drawingTs.enumBase.ts
+*/
+var DrawingTs;
+(function (DrawingTs) {
+    var EnumBase = (function () {
+        function EnumBase(_index, _value) {
+            this._index = _index;
+            this._value = _value;
+        }
+        Object.defineProperty(EnumBase.prototype, "index", {
+            get: function () {
+                return this._index;
+            },
+            enumerable: true,
+            configurable: true
+        });
+        Object.defineProperty(EnumBase.prototype, "value", {
+            get: function () {
+                return this._value;
+            },
+            enumerable: true,
+            configurable: true
+        });
+        return EnumBase;
+    })();
+    DrawingTs.EnumBase = EnumBase;
+
+    var FontStyle = (function (_super) {
+        __extends(FontStyle, _super);
+        function FontStyle() {
+            _super.apply(this, arguments);
+        }
+        FontStyle.Normal = new FontStyle(0, "");
+        FontStyle.Bold = new FontStyle(1, "bold");
+        FontStyle.Italic = new FontStyle(2, "italic");
+        FontStyle.ItalicBold = new FontStyle(3, "italic bold");
+        return FontStyle;
+    })(EnumBase);
+    DrawingTs.FontStyle = FontStyle;
+
+    var TextBaseline = (function (_super) {
+        __extends(TextBaseline, _super);
+        function TextBaseline() {
+            _super.apply(this, arguments);
+        }
+        TextBaseline.Top = new TextBaseline(0, "top");
+        TextBaseline.Hanging = new TextBaseline(1, "hanging");
+        TextBaseline.Middle = new TextBaseline(2, "middle");
+        TextBaseline.Alphabetic = new TextBaseline(3, "alphabetic");
+        TextBaseline.Ideographic = new TextBaseline(4, "ideographic");
+        TextBaseline.Bottom = new TextBaseline(5, "bottom");
+        return TextBaseline;
+    })(EnumBase);
+    DrawingTs.TextBaseline = TextBaseline;
+
+    var TextAlign = (function (_super) {
+        __extends(TextAlign, _super);
+        function TextAlign() {
+            _super.apply(this, arguments);
+        }
+        TextAlign.Start = new TextAlign(0, "start");
+        TextAlign.End = new TextAlign(1, "end");
+        TextAlign.Left = new TextAlign(2, "left");
+        TextAlign.Right = new TextAlign(3, "right");
+        TextAlign.Center = new TextAlign(4, "center");
+        return TextAlign;
+    })(EnumBase);
+    DrawingTs.TextAlign = TextAlign;
+
+    var LineCap = (function (_super) {
+        __extends(LineCap, _super);
+        function LineCap() {
+            _super.apply(this, arguments);
+        }
+        LineCap.Butt = new LineCap(0, "butt");
+        LineCap.Round = new LineCap(1, "round");
+        LineCap.Square = new LineCap(2, "square");
+        return LineCap;
+    })(EnumBase);
+    DrawingTs.LineCap = LineCap;
+
+    var LineJoin = (function (_super) {
+        __extends(LineJoin, _super);
+        function LineJoin() {
+            _super.apply(this, arguments);
+        }
+        LineJoin.Bevel = new LineJoin(0, "bevel");
+        LineJoin.Round = new LineJoin(1, "round");
+        LineJoin.Miter = new LineJoin(2, "miter");
+        return LineJoin;
+    })(EnumBase);
+    DrawingTs.LineJoin = LineJoin;
 })(DrawingTs || (DrawingTs = {}));
 //# sourceMappingURL=drawingTs.js.map

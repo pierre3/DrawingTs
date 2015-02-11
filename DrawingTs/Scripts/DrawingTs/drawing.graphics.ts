@@ -1,4 +1,7 @@
-﻿module DrawingTs {
+﻿/* 
+ * drawingTs.graphics.ts 
+ */
+module DrawingTs {
     'use strict'
 
     export class Graphics {
@@ -82,13 +85,13 @@
         }
 
         public drawStringOutline(text: string, font: Font, pen: Pen, x: number, y: number,
-            align: TextAlign= TextAlign.start,
-            baseline: TextBaseline = TextBaseline.alphabetic): number {
+            align: TextAlign= TextAlign.Start,
+            baseline: TextBaseline = TextBaseline.Alphabetic): number {
 
             this.rc.beginPath();
             pen.applyTo(this);
-            this.rc.textAlign = align.asString();
-            this.rc.textBaseline = baseline.asString();
+            this.rc.textAlign = align.value;
+            this.rc.textBaseline = baseline.value;
             this.rc.font = font.cssFont;
             this.rc.strokeText(text, x, y);
             this.rc.closePath();
@@ -96,17 +99,20 @@
         }
 
         public drawString(text: string, font: Font, brush: IBrush, x: number, y: number,
-            align: TextAlign= TextAlign.start,
-            baseline: TextBaseline = TextBaseline.alphabetic): number {
+            align: TextAlign= TextAlign.Start,
+            baseline: TextBaseline = TextBaseline.Alphabetic): number {
 
             this.rc.beginPath();
             brush.applyTo(this);
-            this.rc.textAlign = align.asString();
-            this.rc.textBaseline = baseline.asString();
+            this.rc.textAlign = align.value;
+            this.rc.textBaseline = baseline.value;
             this.rc.font = font.cssFont;
             this.rc.fillText(text, x, y);
             this.rc.closePath();
             return this.rc.measureText(text).width;
+        }
+        public drawImage(image: ImageObject, destPos: Point, destSize?: Size, srcPos?: Point, srcSize?: Size) {
+            image.draw(this, destPos, destSize, srcPos, srcSize);
         }
 
         private figureElipse(tool: IGraphicsObject, rect: Rectangle, action: (g: Graphics) => void): void {
@@ -126,11 +132,11 @@
             this.rc.translate(centerX, centerY);
             this.rc.scale(scaleX, scaleY);
             this.rc.arc(0, 0, radius, 0, Math.PI * 2);
-            this.rc.scale(1/scaleX, 1/scaleY);
+            this.rc.scale(1 / scaleX, 1 / scaleY);
             this.rc.translate(-centerX, -centerY);
             tool.applyTo(this);
             action(this);
-            
+
             this.rc.closePath();
         }
     }

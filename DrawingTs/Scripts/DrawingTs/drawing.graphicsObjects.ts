@@ -1,48 +1,27 @@
-﻿module DrawingTs {
+﻿/* 
+ * drawingTs.graphicsObjects.ts 
+ */
+module DrawingTs {
     'use strict'
 
-    export class EnumBase {
-        constructor(private index: number, private name: string) { }
-        public ordinal(): number { return this.index; }
-        public asString(): string { return this.name; }
-    }
-    export class FontStyle extends EnumBase {
-        static normal = new FontStyle(0, "");
-        static bold = new FontStyle(1, "bold");
-        static italic = new FontStyle(2, "italic");
-        static italicBold = new FontStyle(3, "italic bold");
-    }
-
-    export class TextBaseline extends EnumBase {
-        static top = new TextBaseline(0, "top");
-        static hanging = new TextBaseline(1, "hanging");
-        static middle = new TextBaseline(2, "middle");
-        static alphabetic = new TextBaseline(3, "alphabetic");
-        static ideographic = new TextBaseline(4, "ideographic");
-        static bottom = new TextBaseline(5, "bottom");
-    }
-
-    export class TextAlign extends EnumBase {
-        static start = new TextAlign(0, "start");
-        static end = new TextAlign(1, "end");
-        static left = new TextAlign(2, "left");
-        static right = new TextAlign(3, "right");
-        static center = new TextAlign(4, "center");
-    }
-
-    export class LineCap extends EnumBase {
-        static butt = new LineCap(0, "butt");
-        static round = new LineCap(1, "round");
-        static square = new LineCap(2, "square");
-    }
-
-    export class LineJoin extends EnumBase {
-        static bevel = new LineJoin(0, "bevel");
-        static round = new LineJoin(1, "round");
-        static miter = new LineJoin(2, "miter");
-    }
-
     export class Color {
+        static Black = new Color("blak");
+        static Silver = new Color("silver");
+        static Gray = new Color("gray");
+        static White = new Color("white");
+        static Maroon = new Color("maroon");
+        static Red = new Color("red");
+        static Purple = new Color("purple");
+        static Fuchsia = new Color("fuchsia");
+        static Green = new Color("green");
+        static Lime = new Color("lime");
+        static Olive = new Color("olive");
+        static Yellow = new Color("yellow");
+        static Navy = new Color("navy");
+        static Blue = new Color("blue");
+        static Teal = new Color("teal");
+        static Aqua = new Color("aqua");
+
         constructor(public cssColor: string) { }
         static fromRgb(r: number, g: number, b: number): Color {
             return new Color('rgb(' + r + ',' + g + ',' + b + ')');
@@ -52,10 +31,14 @@
         }
     }
 
+    export interface IGraphicsObject {
+        applyTo(g: Graphics);
+    }
+
     export class Font implements IGraphicsObject {
         constructor(public cssFont: string) { }
-        static Create(familyName: string, pxSize: number, style: FontStyle = FontStyle.normal): Font {
-            return new Font(style.asString() + " " + pxSize + "px " + "'" + familyName + "'");
+        static Create(familyName: string, pxSize: number, style: FontStyle = FontStyle.Normal): Font {
+            return new Font(style.value + " " + pxSize + "px " + "'" + familyName + "'");
         }
 
         public applyTo(g: Graphics) {
@@ -63,22 +46,18 @@
         }
     }
 
-    export interface IGraphicsObject {
-        applyTo(g: Graphics);
-    }
-
     export class Pen implements IGraphicsObject {
         constructor(public color: Color, public width: number= 1,
-            public lineDash: number[]= [], public lineCap: LineCap= LineCap.butt,
-            public lineJoin = LineJoin.bevel, public miterLimit: number = 10.0) { }
+            public lineDash: number[]= [], public lineCap: LineCap= LineCap.Butt,
+            public lineJoin = LineJoin.Bevel, public miterLimit: number = 10.0) { }
         public applyTo(g: Graphics) {
             g.rc.strokeStyle = this.color.cssColor;
             if (g.rc.setLineDash != undefined) {
                 g.rc.setLineDash(this.lineDash);
             }
             g.rc.lineWidth = this.width
-            g.rc.lineCap = this.lineCap.asString();
-            g.rc.lineJoin = this.lineJoin.asString();
+            g.rc.lineCap = this.lineCap.value;
+            g.rc.lineJoin = this.lineJoin.value;
             g.rc.miterLimit = this.miterLimit;
         }
         public clone(): Pen {
@@ -121,4 +100,52 @@
             g.rc.fillStyle = gradient;
         }
     }
+
+    export class ImageObject {
+        private imageElement: HTMLImageElement;
+        public drawImageWhenIncomplete: (g: Graphics, rect: Rectangle) => void;
+        
+        public get bounds(): Rectangle {
+            return new Rectangle(0, 0, this.imageElement.width, this.imageElement.height);
+        }
+
+        constructor(width?: number, height?: number) {
+            this.imageElement = new Image(width, height);
+            this.drawImageWhenIncomplete = (g, rect) => {
+                g.drawRect(new Pen(Color.Blue), rect);
+                g.drawLine(new Pen(Color.Red), rect.Position, new Point(rect.right, rect.bottom));
+                g.drawLine(new Pen(Color.Red), new Point(rect.right, rect.top), new Point(rect.left, rect.bottom));
+            };
+        }
+
+        public load(source: string, onload: (ev: Event) => any) {
+            this.imageElement.onload = onload;
+            this.imageElement.src = source;
+        }
+
+        public draw(g: Graphics, destPos: Point, destSize?: Size, srcPos?: Point, srcSize?: Size) {
+            var offsetx = (srcPos == null) ? 0 : srcPos.x;
+            var offsety = (srcPos == null) ? 0 : srcPos.y;
+            var width = (srcSize == null) ? this.imageElement.width : srcSize.width;
+            var height = (srcSize == null) ? this.imageElement.height : srcSize.height;
+
+            var canvasOffsetx = (destPos == null) ? 0 : destPos.x;
+            var canvasOffsety = (destPos == null) ? 0 : destPos.y;
+            var canvasWidth = (destSize == null) ? width : destSize.width;
+            var canvasHeight = (destSize == null) ? height : destSize.height;
+            if (this.imageElement.complete) {
+                this.drawImage(g, offsetx, offsety, width, height, canvasOffsetx, canvasOffsety, canvasWidth, canvasHeight);
+            } else {
+            if (canvasWidth === 0) { canvasWidth = 32; }
+            if (canvasHeight === 0) { canvasHeight = 32; }
+                this.drawImageWhenIncomplete(g,new Rectangle( canvasOffsetx, canvasOffsety, canvasWidth, canvasHeight));
+            }
+        }
+
+        private drawImage(g: Graphics, offsetx: number, offsety: number, width: number, height: number,
+            canvasOffsetx: number, canvasOffsety: number, canvasWidth: number, canvasHeight: number) {
+            g.rc.drawImage(this.imageElement, offsetx, offsety, width, height, canvasOffsetx, canvasOffsety, canvasWidth, canvasHeight);
+        }
+    }
+
 }
