@@ -35,29 +35,6 @@
     }
 }
 declare module DrawingTs {
-    class Canvas {
-        private htmlCanvas;
-        private _bufferWidth;
-        private _bufferHeight;
-        private _zoomX;
-        private _zoomY;
-        public graphics: Graphics;
-        public bufferWidth : number;
-        public bufferHeight : number;
-        public zoomX : number;
-        public zoomY : number;
-        public onPaint: (g: Graphics) => any;
-        constructor(id: string);
-        public setZoom(displayWidth: number, displayHeight: number): void;
-        public onPointerDown : (ev: CanvasPointerEvent) => any;
-        public onPointerMove : (ev: CanvasPointerEvent) => any;
-        public onPointerUp : (ev: CanvasPointerEvent) => any;
-        private createPointerEvent(ev);
-        private createPointerEventTouch(ev);
-        private createPointerEventTouchEnd(ev);
-        public paint(): void;
-        public getDataURL(type?: string): string;
-    }
     class CanvasPointerEvent {
         public canvas: Canvas;
         public position: Point;
@@ -65,6 +42,33 @@ declare module DrawingTs {
         public isMultiTouch: boolean;
         public needsPaint: boolean;
         constructor(canvas: Canvas, position: Point, source: UIEvent, isMultiTouch?: boolean, needsPaint?: boolean);
+    }
+    class Canvas {
+        private _htmlCanvas;
+        private _bufferWidth;
+        private _bufferHeight;
+        private _zoomX;
+        private _zoomY;
+        public graphics: Graphics;
+        public onPaint: (g: Graphics) => any;
+        public bufferWidth : number;
+        public bufferHeight : number;
+        public zoomX : number;
+        public zoomY : number;
+        public htmlCanvas : HTMLCanvasElement;
+        public onPointerDown : (ev: CanvasPointerEvent) => any;
+        public onPointerMove : (ev: CanvasPointerEvent) => any;
+        public onPointerUp : (ev: CanvasPointerEvent) => any;
+        constructor(id: string);
+        public setDisplaySize(displayWidth: number, displayHeight: number): void;
+        public zoom(percentZoom: number): void;
+        public paint(): void;
+        public getDataURL(type?: string): string;
+        public adjustWidth(baseWidth: number, shrinkOnly?: boolean): void;
+        public adjustHeight(baseHeight: number, shrinkOnly?: boolean): void;
+        private createPointerEvent(ev);
+        private createPointerEventTouch(ev);
+        private createPointerEventTouchEnd(ev);
     }
 }
 declare module DrawingTs {
@@ -304,5 +308,32 @@ declare module DrawingTs {
         static Bevel: LineJoin;
         static Round: LineJoin;
         static Miter: LineJoin;
+    }
+}
+declare module DrawingTs {
+    interface Touch {
+        identifier: number;
+        target: EventTarget;
+        screenX: number;
+        screenY: number;
+        clientX: number;
+        clientY: number;
+        pageX: number;
+        pageY: number;
+    }
+    interface TouchList {
+        length: number;
+        item(index: number): Touch;
+        identifiedTouch(identifier: number): Touch;
+    }
+    interface TouchEvent extends UIEvent {
+        touches: TouchList;
+        targetTouches: TouchList;
+        changedTouches: TouchList;
+        altKey: boolean;
+        metaKey: boolean;
+        ctrlKey: boolean;
+        shiftKey: boolean;
+        initTouchEvent(type: string, canBubble: boolean, cancelable: boolean, view: any, detail: number, ctrlKey: boolean, altKey: boolean, shiftKey: boolean, metaKey: boolean, touches: TouchList, targetTouches: TouchList, changedTouches: TouchList): any;
     }
 }

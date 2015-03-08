@@ -18,18 +18,23 @@
     <IISExpressUseClassicPipelineMode />
   </PropertyGroup>
   <ItemGroup>
-    <Content Include="app.css" />
+    <Content Include="Content\app.css" />
     <Content Include="Content\logo-piquest.png" />
     <Content Include="index.html" />
     <Content Include="Scripts\DrawingTs\drawingTs.js" />
     <Content Include="Scripts\DrawingTs\DrawingTs.min.js" />
+    <Content Include="shapes.html" />
     <Content Include="web.config" />
   </ItemGroup>
   <ItemGroup>
-    <TypeScriptCompile Include="app.ts" />
+    <TypeScriptCompile Include="Scripts\index.ts" />
     <TypeScriptCompile Include="Scripts\DrawingTs\drawingTs.d.ts" />
+    <TypeScriptCompile Include="Scripts\shapes.ts" />
   </ItemGroup>
   <ItemGroup>
+    <Content Include="Scripts\DrawingTs\drawingTs.min.js.map">
+      <DependentUpon>DrawingTs.min.js</DependentUpon>
+    </Content>
     <None Include="web.Debug.config">
       <DependentUpon>web.config</DependentUpon>
     </None>

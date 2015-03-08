@@ -1,4 +1,4 @@
-﻿/// <reference path="scripts/drawingts/drawingts.d.ts" />
+﻿/// <reference path="drawingts/drawingts.d.ts" />
 
 module drawingDemo {
     'use strict'
@@ -68,6 +68,7 @@ module drawingDemo {
             isDragging = false;
             canvas.paint();
         };
+
         //
         // Raise a paint event.
         //
@@ -380,4 +381,5 @@ module drawingDemo {
         };
         canvas11.paint();
     };
+
 }

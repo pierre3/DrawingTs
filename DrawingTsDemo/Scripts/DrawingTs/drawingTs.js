@@ -127,18 +127,33 @@ var DrawingTs;
 var DrawingTs;
 (function (DrawingTs) {
     'use strict';
+
+    var CanvasPointerEvent = (function () {
+        function CanvasPointerEvent(canvas, position, source, isMultiTouch, needsPaint) {
+            if (typeof isMultiTouch === "undefined") { isMultiTouch = false; }
+            if (typeof needsPaint === "undefined") { needsPaint = false; }
+            this.canvas = canvas;
+            this.position = position;
+            this.source = source;
+            this.isMultiTouch = isMultiTouch;
+            this.needsPaint = needsPaint;
+        }
+        return CanvasPointerEvent;
+    })();
+    DrawingTs.CanvasPointerEvent = CanvasPointerEvent;
+
     var Canvas = (function () {
         function Canvas(id) {
             this._zoomX = 1.0;
             this._zoomY = 1.0;
-            this.htmlCanvas = document.getElementById(id);
-            if (this.htmlCanvas == null) {
+            this._htmlCanvas = document.getElementById(id);
+            if (this._htmlCanvas == null) {
                 throw DOMException.NOT_FOUND_ERR;
             }
-            this.graphics = new DrawingTs.Graphics(this.htmlCanvas.getContext("2d"));
+            this.graphics = new DrawingTs.Graphics(this._htmlCanvas.getContext("2d"));
 
-            this._bufferWidth = this.htmlCanvas.width;
-            this._bufferHeight = this.htmlCanvas.height;
+            this._bufferWidth = this._htmlCanvas.width;
+            this._bufferHeight = this._htmlCanvas.height;
         }
         Object.defineProperty(Canvas.prototype, "bufferWidth", {
             get: function () {
@@ -168,11 +183,13 @@ var DrawingTs;
             enumerable: true,
             configurable: true
         });
-
-        Canvas.prototype.setZoom = function (displayWidth, displayHeight) {
-            this._zoomX = this._bufferWidth / displayWidth;
-            this._zoomY = this._bufferHeight / displayHeight;
-        };
+        Object.defineProperty(Canvas.prototype, "htmlCanvas", {
+            get: function () {
+                return this._htmlCanvas;
+            },
+            enumerable: true,
+            configurable: true
+        });
 
         Object.defineProperty(Canvas.prototype, "onPointerDown", {
             set: function (handler) {
@@ -181,18 +198,18 @@ var DrawingTs;
                     return;
                 }
 
-                if ('onpointerdown' in this.htmlCanvas) {
-                    this.htmlCanvas.onpointerdown = function (ev) {
+                if ("onpointerdown" in this._htmlCanvas) {
+                    this._htmlCanvas.addEventListener("pointerdown", function (ev) {
                         return handler(_this.createPointerEvent(ev));
-                    };
-                } else if ('ontouchstart' in this.htmlCanvas) {
-                    this.htmlCanvas.addEventListener('touchstart', function (ev) {
+                    });
+                } else if ("ontouchstart" in this._htmlCanvas) {
+                    this._htmlCanvas.addEventListener("touchstart", function (ev) {
                         return handler(_this.createPointerEventTouch(ev));
                     });
                 } else {
-                    this.htmlCanvas.onmousedown = function (ev) {
+                    this._htmlCanvas.addEventListener("mousedown", function (ev) {
                         return handler(_this.createPointerEvent(ev));
-                    };
+                    });
                 }
             },
             enumerable: true,
@@ -206,24 +223,23 @@ var DrawingTs;
                     return;
                 }
 
-                if ('onpointermove' in this.htmlCanvas) {
-                    this.htmlCanvas.onpointermove = function (ev) {
+                if ("onpointermove" in this._htmlCanvas) {
+                    this._htmlCanvas.addEventListener("pointermove", function (ev) {
                         return handler(_this.createPointerEvent(ev));
-                    };
-                } else if ('ontouchmove' in this.htmlCanvas) {
-                    this.htmlCanvas.addEventListener('touchmove', function (ev) {
+                    });
+                } else if ("ontouchmove" in this._htmlCanvas) {
+                    this._htmlCanvas.addEventListener("touchmove", function (ev) {
                         return handler(_this.createPointerEventTouch(ev));
                     });
                 } else {
-                    this.htmlCanvas.onmousemove = function (ev) {
+                    this._htmlCanvas.addEventListener("mousemove", function (ev) {
                         return handler(_this.createPointerEvent(ev));
-                    };
+                    });
                 }
             },
             enumerable: true,
             configurable: true
         });
-
         Object.defineProperty(Canvas.prototype, "onPointerUp", {
             set: function (handler) {
                 var _this = this;
@@ -231,37 +247,34 @@ var DrawingTs;
                     return;
                 }
 
-                if ('onpointerup' in this.htmlCanvas) {
-                    this.htmlCanvas.onpointerup = function (ev) {
+                if ("onpointerup" in this._htmlCanvas) {
+                    this._htmlCanvas.addEventListener("pointerup", function (ev) {
                         return handler(_this.createPointerEvent(ev));
-                    };
-                } else if ('ontouchend' in this.htmlCanvas) {
-                    this.htmlCanvas.addEventListener('touchend', function (ev) {
+                    });
+                } else if ("ontouchend" in this._htmlCanvas) {
+                    this._htmlCanvas.addEventListener("touchend", function (ev) {
                         return handler(_this.createPointerEventTouchEnd(ev));
-                    }, true);
+                    });
                 } else {
-                    this.htmlCanvas.onmouseup = function (ev) {
+                    this._htmlCanvas.addEventListener("mouseup", function (ev) {
                         return handler(_this.createPointerEvent(ev));
-                    };
+                    });
                 }
             },
             enumerable: true,
             configurable: true
         });
 
-        Canvas.prototype.createPointerEvent = function (ev) {
-            var pos = new DrawingTs.Point(ev.offsetX * this._zoomX, ev.offsetY * this._zoomY);
-            return new CanvasPointerEvent(this, pos, ev);
+        Canvas.prototype.setDisplaySize = function (displayWidth, displayHeight) {
+            this._htmlCanvas.style.width = displayWidth.toString() + "px";
+            this._htmlCanvas.style.height = displayHeight.toString() + "px";
+            this._zoomX = this._bufferWidth / displayWidth;
+            this._zoomY = this._bufferHeight / displayHeight;
         };
 
-        Canvas.prototype.createPointerEventTouch = function (ev) {
-            var isMultiTouch = ev.targetTouches.length > 1;
-            var pos = new DrawingTs.Point(this._zoomX * (ev.touches[0].pageX - this.htmlCanvas.offsetLeft), this._zoomY * (ev.touches[0].pageY - this.htmlCanvas.offsetTop));
-            return new CanvasPointerEvent(this, pos, ev, isMultiTouch);
-        };
-
-        Canvas.prototype.createPointerEventTouchEnd = function (ev) {
-            return new CanvasPointerEvent(this, new DrawingTs.Point(0, 0), ev);
+        Canvas.prototype.zoom = function (percentZoom) {
+            var zoom = percentZoom / 100;
+            this.setDisplaySize(this.bufferWidth * zoom, this.bufferHeight * zoom);
         };
 
         Canvas.prototype.paint = function () {
@@ -271,31 +284,40 @@ var DrawingTs;
         };
 
         Canvas.prototype.getDataURL = function (type) {
-            return this.htmlCanvas.toDataURL(type);
+            return this._htmlCanvas.toDataURL(type);
+        };
+
+        Canvas.prototype.adjustWidth = function (baseWidth, shrinkOnly) {
+            if (typeof shrinkOnly === "undefined") { shrinkOnly = false; }
+            var dispW = shrinkOnly ? Math.min(this.bufferWidth, baseWidth) : baseWidth;
+            var dispH = this.bufferHeight * dispW / this.bufferWidth;
+            this.setDisplaySize(dispW, dispH);
+        };
+
+        Canvas.prototype.adjustHeight = function (baseHeight, shrinkOnly) {
+            if (typeof shrinkOnly === "undefined") { shrinkOnly = false; }
+            var dispH = shrinkOnly ? Math.min(this.bufferHeight, baseHeight) : baseHeight;
+            var dispW = this.bufferWidth * dispH / this.bufferHeight;
+            this.setDisplaySize(dispW, dispH);
+        };
+
+        Canvas.prototype.createPointerEvent = function (ev) {
+            var pos = new DrawingTs.Point(ev.offsetX * this._zoomX, ev.offsetY * this._zoomY);
+            return new CanvasPointerEvent(this, pos, ev);
+        };
+
+        Canvas.prototype.createPointerEventTouch = function (ev) {
+            var isMultiTouch = ev.targetTouches.length > 1;
+            var pos = new DrawingTs.Point(this._zoomX * (ev.touches[0].pageX - this._htmlCanvas.offsetLeft), this._zoomY * (ev.touches[0].pageY - this._htmlCanvas.offsetTop));
+            return new CanvasPointerEvent(this, pos, ev, isMultiTouch);
+        };
+
+        Canvas.prototype.createPointerEventTouchEnd = function (ev) {
+            return new CanvasPointerEvent(this, new DrawingTs.Point(0, 0), ev);
         };
         return Canvas;
     })();
     DrawingTs.Canvas = Canvas;
-
-    var CanvasPointerEvent = (function () {
-        function CanvasPointerEvent(canvas, position, source, isMultiTouch, needsPaint) {
-            if (typeof isMultiTouch === "undefined") { isMultiTouch = false; }
-            if (typeof needsPaint === "undefined") { needsPaint = false; }
-            this.canvas = canvas;
-            this.position = position;
-            this.source = source;
-            this.isMultiTouch = isMultiTouch;
-            this.needsPaint = needsPaint;
-        }
-        return CanvasPointerEvent;
-    })();
-    DrawingTs.CanvasPointerEvent = CanvasPointerEvent;
-
-    ;
-
-    ;
-
-    ;
 })(DrawingTs || (DrawingTs = {}));
 /*
 * drawingTs.graphics.ts
@@ -1030,5 +1052,9 @@ var DrawingTs;
         return LineJoin;
     })(EnumBase);
     DrawingTs.LineJoin = LineJoin;
+})(DrawingTs || (DrawingTs = {}));
+var DrawingTs;
+(function (DrawingTs) {
+    'use strict';
 })(DrawingTs || (DrawingTs = {}));
 //# sourceMappingURL=drawingTs.js.map

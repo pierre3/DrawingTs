@@ -29,6 +29,7 @@
     <TypeScriptCompile Include="Scripts\DrawingTs\drawing.graphicsPath.ts" />
     <TypeScriptCompile Include="Scripts\DrawingTs\drawing.manager.ts" />
     <TypeScriptCompile Include="Scripts\DrawingTs\drawing.enumBase.ts" />
+    <TypeScriptCompile Include="Scripts\DrawingTs\touchEvent.ts" />
   </ItemGroup>
   <ItemGroup>
     <None Include="web.Debug.config">

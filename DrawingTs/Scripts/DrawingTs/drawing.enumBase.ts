@@ -43,4 +43,5 @@ module DrawingTs {
         static Round = new LineJoin(1, "round");
         static Miter = new LineJoin(2, "miter");
     }
+
 } 
